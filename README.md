@@ -12,6 +12,7 @@ This will create an environment named `sst`.
 Then, you need to activate this environment and install other dependencies:
 
 > conda activate sst
+
 > poetry install
 
 ## Run Notebooks
