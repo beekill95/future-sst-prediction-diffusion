@@ -23,3 +23,11 @@ Once the resource is allocated,
 you can use the scripts in `scripts/ws` to start jupyter server on the node:
 
 > scripts/ws/carbonate.sh <login_node> <jupyter_server_port>
+
+## Dataset
+
+The project will use Sea Surface Temperature data from [NOAA](https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html).
+
+To download the data, just run this script:
+
+> scripts/download_noaa_oi_sst_v2.py
