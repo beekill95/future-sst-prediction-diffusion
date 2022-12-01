@@ -41,7 +41,7 @@ On a second thought, we don't need to do this!
 
 Next, we will have to extract 29 patches as described in the [paper](https://arxiv.org/abs/1711.07970),
 which is:
-![](resources/images/sst_prediction_roi.png)
+![](./resources/images/sst_prediction_roi.png)
 
 In order to do this, I have guessed the positions of these patches.
 Of course, my guesses are not exactly the same
@@ -50,3 +50,7 @@ but I think it will be good enough.
 One more thing, my guesses have 30 patches instead of just 29.
 
 ## References
+
+* de Bezenac, E., Pajot, A., & Gallinari, P. (2017).
+Deep Learning for Physical Processes: Incorporating Prior Scientific Knowledge.
+http://arxiv.org/abs/1711.07970
