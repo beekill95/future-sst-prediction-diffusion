@@ -49,6 +49,11 @@ Of course, my guesses are not exactly the same
 but I think it will be good enough.
 One more thing, my guesses have 30 patches instead of just 29.
 
+In order to extract the patches, just run the command
+and it will extract all the patches to `NOAA/OI_SST_v2_patches/` folder.
+
+> scripts/extract_sst_patches.py
+
 ## References
 
 * de Bezenac, E., Pajot, A., & Gallinari, P. (2017).
