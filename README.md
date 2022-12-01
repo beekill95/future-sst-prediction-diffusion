@@ -32,8 +32,9 @@ To download the data, just run this script:
 
 > scripts/download_noaa_oi_sst_v2.py
 
-But the dataset downloaded has resolution of .25deg x .25deg,
+~But the dataset downloaded has resolution of .25deg x .25deg,
 which is too detailed for our purpose.
-So, we will downscale it to 1deg x 1deg by running the script:
+So, we will downscale it to 1deg x 1deg by running the script:~
+On a second thought, we don't need to do this!
 
 > scripts/downscale_noaa_ai_sst.py
