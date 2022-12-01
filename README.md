@@ -38,3 +38,15 @@ So, we will downscale it to 1deg x 1deg by running the script:~
 On a second thought, we don't need to do this!
 
 > scripts/downscale_noaa_ai_sst.py
+
+Next, we will have to extract 29 patches as described in the [paper](https://arxiv.org/abs/1711.07970),
+which is:
+![](resources/images/sst_prediction_roi.png)
+
+In order to do this, I have guessed the positions of these patches.
+Of course, my guesses are not exactly the same
+(you can look into the notebook `experiments/guess_patches_location.py`),
+but I think it will be good enough.
+One more thing, my guesses have 30 patches instead of just 29.
+
+## References
