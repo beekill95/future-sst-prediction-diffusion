@@ -4,8 +4,9 @@ from __future__ import annotations
 import glob
 import os
 import numpy as np
+import torch
 from torch.utils.data import Dataset
-from typing import Iterator
+from typing import Callable, Iterator
 import xarray as xr
 
 
@@ -15,9 +16,11 @@ TRAIN_YEARS = list(range(2006, 2016))
 TEST_PATCHES = [17, 18, 19, 20]
 TEST_YEARS = [2016, 2017]
 
+TransformFn = Callable[[tuple[torch.Tensor, torch.Tensor]], tuple[torch.Tensor, torch.Tensor]]
+
 
 class NOAA_OI_SST(Dataset):
-    def __init__(self, train: bool, previous_days: int = 4) -> None:
+    def __init__(self, train: bool, previous_days: int = 4, transform: TransformFn | None = None) -> None:
         super().__init__()
 
         # Load the desired patches.
@@ -35,12 +38,18 @@ class NOAA_OI_SST(Dataset):
 
         self._X = np.concatenate(XX, axis=0)
         self._y = np.concatenate(yy, axis=0)
+        self._transform = transform
 
     def __len__(self):
         return self._X.shape[0]
 
     def __getitem__(self, index):
-        return self._X[index], self._y[index]
+        X, y = self._X[index], self._y[index]
+
+        if self._transform:
+            return self._transform((X, y))
+
+        return X, y
 
 
 def load_patches(patch_indices, years) -> Iterator[xr.Dataset]:
