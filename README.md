@@ -54,6 +54,9 @@ and it will extract all the patches to `NOAA/OI_SST_v2_patches/` folder.
 
 > scripts/extract_sst_patches.py
 
+Finally, the dataset can be loaded as pytorch dataset using the class
+`sst.dataset.NOAA_OI_SST`.
+
 ## References
 
 * de Bezenac, E., Pajot, A., & Gallinari, P. (2017).
