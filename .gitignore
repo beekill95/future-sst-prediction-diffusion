@@ -130,3 +130,12 @@ dmypy.json
 
 # Our data files.
 *.nc
+# MNIST data
+*-ubyte
+*-ubyte.gz
+
+# Jupyter Notebooks.
+# Just commit a normal py file instead of the whole notebook.
+# If you really want to commit the notebook to the repo,
+# you can still do it with -f flag: `git add -f <notebook>`
+*.ipynb
