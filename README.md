@@ -48,6 +48,9 @@ Of course, my guesses are not exactly the same
 (you can look into the notebook `experiments/guess_patches_location.py`),
 but I think it will be good enough.
 One more thing, my guesses have 30 patches instead of just 29.
+Specifically, here is the 30 guessed patches:
+
+![Guessed SST Patches](./resources/images/sst_guessed_patches.png)
 
 In order to extract the patches, just run the command
 and it will extract all the patches to `NOAA/OI_SST_v2_patches/` folder.

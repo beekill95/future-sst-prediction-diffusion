@@ -85,7 +85,7 @@ sst_roi = ds_roi['sst'].values
 _ = plot_sst(sst_roi[0], lat_roi, lon_roi, figsize=(8, 6))
 # -
 
-def plot_patches(ds_roi: xr.Dataset, patches_pos: list[tuple[float, float]], patch_size: float):
+def plot_patches(ds_roi: xr.Dataset, patches_pos: list[tuple[float, float]], patch_size: float, patch_nb_start=-1):
     lat = ds_roi['lat'].values
     lon = ds_roi['lon'].values
     sst = ds_roi['sst'].values[0]
@@ -93,10 +93,19 @@ def plot_patches(ds_roi: xr.Dataset, patches_pos: list[tuple[float, float]], pat
     _, ax = plot_sst(sst, lat, lon, figsize=(8, 6))
     coord_system = ccrs.PlateCarree()
 
-    for plat, plon in patches_pos:
+    show_patch_number = patch_nb_start > 0
+
+    for i, (plat, plon) in enumerate(patches_pos):
         y = [plat, plat + patch_size, plat + patch_size, plat, plat]
         x = [plon, plon, plon + patch_size, plon + patch_size, plon]
         ax.plot(x, y, color='black', lw=1, transform=coord_system)
+
+        if show_patch_number:
+            patch_center_y = plat + patch_size // 2
+            patch_center_x = plon + patch_size // 2
+
+            ax.text(patch_center_x, patch_center_y, f'{i + patch_nb_start}', ha='center', va='center')
+
 
 # ### First Row Patches
 
@@ -180,4 +189,4 @@ all_patches = (first_row_patches_position
     + last_row_patches_position)
 all_patches
 
-plot_patches(ds_roi, all_patches, patch_size)
+plot_patches(ds_roi, all_patches, patch_size, patch_nb_start=1)
