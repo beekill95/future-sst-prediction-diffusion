@@ -85,7 +85,7 @@ def extract_Xy(patch_ds: xr.Dataset, previous_days: int) -> tuple[np.ndarray, np
         # Using SST of previous days;
         X = sst[i-previous_days:i]
         # to predict current SST.
-        y = sst[i]
+        y = sst[i][None, ...]
 
         XX.append(X[None, ...])
         yy.append(y[None, ...])
