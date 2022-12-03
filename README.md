@@ -65,3 +65,7 @@ Finally, the dataset can be loaded as pytorch dataset using the class
 * de Bezenac, E., Pajot, A., & Gallinari, P. (2017).
 Deep Learning for Physical Processes: Incorporating Prior Scientific Knowledge.
 http://arxiv.org/abs/1711.07970
+* Saharia, C., Ho, J., Chan, W., Salimans, T., Fleet, D. J., & Norouzi, M. (2022).
+Image Super-Resolution Via Iterative Refinement.
+IEEE Transactions on Pattern Analysis and Machine Intelligence, 1–14.
+https://doi.org/10.1109/TPAMI.2022.3204461
