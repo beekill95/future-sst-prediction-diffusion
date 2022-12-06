@@ -21,3 +21,7 @@ class ScaleTemperature:
         # Scale to 0 and 1.
         t = (t - mintemp) / (maxtemp - mintemp)
         return t
+
+    def inverse(self, t):
+        mintemp, maxtemp = self.min_temp, self.max_temp
+        return t * (maxtemp - mintemp) + mintemp

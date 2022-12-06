@@ -36,6 +36,7 @@ from sst import (
 )
 from sst.dataset import NOAA_OI_SST
 from sst.dataset.transforms import ScaleTemperature
+from sst.evaluate import evaluate_mse
 from sst.layers import SinusoidalPositionEncoding
 from sst.training_procedures import ConditionalOnPastSSTTrainingProcedure
 # -
@@ -51,10 +52,11 @@ from sst.training_procedures import ConditionalOnPastSSTTrainingProcedure
 #
 # Similar to that of [sst_unconditional_diffusion.py](./sst_unconditional_diffusion.py):
 
+temperature_scaler = ScaleTemperature(min_temp=-2, max_temp=36)
 train_ds = NOAA_OI_SST(
     train=True,
     transform=Compose([
-        ScaleTemperature(min_temp=-2, max_temp=36),
+        temperature_scaler,
         Lambda(lambda s: (2*s[0] - 1, 2*s[1] - 1)),
     ],
 ))
@@ -73,7 +75,7 @@ print(f'{val_size=} {len(val_ds)=}')
 test_ds = NOAA_OI_SST(
     train=False,
     transform=Compose([
-        ScaleTemperature(min_temp=-2, max_temp=36),
+        temperature_scaler,
         Lambda(lambda s: (2*s[0] - 1, 2*s[1] - 1)),
     ],
 ))
@@ -163,12 +165,12 @@ fig.tight_layout()
 #
 # Now, we will train the model.
 
-# +
+# + tags=[]
 model = FutureSSTNoisePredictionModel(4)
 training_procedure = ConditionalOnPastSSTTrainingProcedure(model, forward_sampler, device)
 
-train_dataloader = DataLoader(train_ds, batch_size=256, shuffle=True)
-val_dataloader = DataLoader(val_ds, batch_size=256)
+train_dataloader = DataLoader(train_ds, batch_size=256, shuffle=True, num_workers=4)
+val_dataloader = DataLoader(val_ds, batch_size=256, num_workers=4)
 
 epochs = 1 if device == 'cpu' else 500
 for epoch in range(epochs):
@@ -176,6 +178,10 @@ for epoch in range(epochs):
     val_loss = training_procedure.evaluate(val_dataloader)
 
     print(f'{train_loss=} {val_loss=}')
+
+# +
+# Save model.
+# torch.save(model.state_dict(), 'future_sst-conditional.pt')
 # -
 
 # ### Results
@@ -183,9 +189,12 @@ for epoch in range(epochs):
 # Now, let's check how does the model work.
 
 # +
+# model = FutureSSTNoisePredictionModel(4)
+# model.load_state_dict(torch.load('future_sst-conditional.pt'))
+# model = model.to(device)
 backward_sampler = ConditionalBackwardSampler(model, beta_scheduler, device)
 
-past_sst, original_sst = test_ds[1000]
+past_sst, original_sst = test_ds[500]
 past_sst, original_sst = torch.tensor(past_sst), torch.tensor(original_sst)
 noisy_sst, _ = forward_sampler(
     original_sst, torch.tensor(forward_sampler.max_time_steps - 1))
@@ -211,3 +220,21 @@ fig.colorbar(cs, ax=ax)
 ax.set_title('Original SST Field')
 ax.axis('off')
 fig.tight_layout()
+
+
+# -
+
+# #### Evaluate MSE with Test Dataset
+
+evaluate_mse(
+    val_dataloader,
+    backward_sampler,
+    max_time_steps=forward_sampler.max_time_steps,
+    temperature_scaler=temperature_scaler)
+
+test_dataloader = DataLoader(test_ds, batch_size=256, num_workers=4)
+evaluate_mse(
+    test_dataloader,
+    backward_sampler,
+    max_time_steps=forward_sampler.max_time_steps,
+    temperature_scaler=temperature_scaler)
