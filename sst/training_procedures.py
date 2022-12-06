@@ -122,7 +122,7 @@ def _init_weights(m: nn.Module):
     strategy_fn = nn.init.xavier_normal_
 
     match m:
-        case nn.Linear:
+        case nn.Linear():
             strategy_fn(m.weight)
         case _:
             print(f'Skipped init weight for module {m=}.')
