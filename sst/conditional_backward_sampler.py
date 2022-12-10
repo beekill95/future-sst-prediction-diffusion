@@ -43,7 +43,6 @@ class ConditionalBackwardSampler:
             noisy_sst=noisy_sst.to(self._device),
             past_sst=past_sst.to(self._device),
             time_steps=time_steps.to(self._device)).cpu()
-        # print(pred_noise.shape, 1)
         means = self._means(noisy_sst, pred_noise, time_steps)
 
         if time_step == 0:
@@ -51,7 +50,6 @@ class ConditionalBackwardSampler:
         else:
             posterior_variances = self._posterior_variances(time_steps)[:, :, None, None]
             random_noise = torch.randn_like(noisy_sst)
-            # print(posterior_variances.shape)
 
             x = means + random_noise * torch.sqrt(posterior_variances)
             return x if is_batched_input else x[0]
@@ -64,7 +62,6 @@ class ConditionalBackwardSampler:
         sqrt_alpha_recip = 1. / torch.sqrt(self._beta_scheduler.alpha(time_steps))[:, :, None, None]
         sqrt_1_minus_alpha_bar = self._beta_scheduler.sqrt_1_minus_alpha_bar(time_steps)[:, :, None, None]
         beta = self._beta_scheduler.beta(time_steps)[:, :, None, None]
-        # print(beta.shape, pred_noise.shape)
 
         return sqrt_alpha_recip * (noisy_sst - beta * pred_noise / sqrt_1_minus_alpha_bar)
 

@@ -270,3 +270,25 @@ for row, patch_idx in enumerate(patches):
     ax.set_ylabel('Temperature\nDifference (degC)')
 
 fig.tight_layout()
+# -
+
+# ### Temperature Difference Std in all years
+
+# +
+from statistics import mean, mode
+
+patches = [1, 6, 10, 14, 16, 17, 24, 25, 28]
+fig, axes = plt.subplots(nrows=len(patches), sharey=True, figsize=(16, 4 * len(patches)))
+for row, patch_idx in enumerate(patches):
+    ax = axes[row]
+
+    ds = PatchDifferenceDataset(patch_idx)
+    stds = [p.std() for p in ds]
+
+    days = list(range(len(ds)))
+    ax.plot(days, stds)
+    ax.set_title(f'Patch {patch_idx}, avg std = {mean(stds):.4f}, mode = {mode(stds):.4f}')
+    ax.set_xlabel('Days')
+    ax.set_ylabel('Temperature\nDifference Std (degC)')
+
+fig.tight_layout()

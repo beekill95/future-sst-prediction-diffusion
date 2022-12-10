@@ -7,7 +7,7 @@ from tqdm.autonotebook import tqdm
 
 from .dataset import NOAA_OI_SST
 from .forward_sampler import ForwardSampler
-from .losses import mse_loss
+from .losses import mse_loss, smooth_l1_loss
 
 
 class UnconditionalTrainingProcedure:
@@ -57,12 +57,13 @@ class UnconditionalTrainingProcedure:
 
 
 class ConditionalOnPastSSTTrainingProcedure:
-    def __init__(self, model: nn.Module, forward_sampler: ForwardSampler, device: str, lr=1e-3) -> None:
+    def __init__(self, model: nn.Module, forward_sampler: ForwardSampler, device: str, lr=1e-3, weight_decay: float = 0) -> None:
         self._model = model.to(device)
         self._forward_process = forward_sampler
         self._device = device
 
-        self._optimizer = torch.optim.Adam(self._model.parameters(), lr=lr)
+        self._optimizer = torch.optim.Adam(
+            self._model.parameters(), lr=lr, weight_decay=weight_decay)
         model.apply(_init_weights)
 
     def train(self, dataloader: DataLoader[NOAA_OI_SST], epoch: int) -> float:
@@ -114,7 +115,8 @@ class ConditionalOnPastSSTTrainingProcedure:
             time_steps=random_time_steps)
 
         # Calculate the loss.
-        loss = mse_loss(pred_noise, added_noise)
+        # loss = mse_loss(pred_noise, added_noise)
+        loss = smooth_l1_loss(pred_noise, added_noise)
         return loss
 
 
@@ -122,7 +124,7 @@ def _init_weights(m: nn.Module):
     strategy_fn = nn.init.xavier_normal_
 
     match m:
-        case nn.Linear():
+        case nn.Linear() | nn.Conv2d() | nn.ConvTranspose2d():
             strategy_fn(m.weight)
         case _:
             print(f'Skipped init weight for module {m=}.')

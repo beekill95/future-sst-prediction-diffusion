@@ -25,3 +25,19 @@ class ScaleTemperature:
     def inverse(self, t):
         mintemp, maxtemp = self.min_temp, self.max_temp
         return t * (maxtemp - mintemp) + mintemp
+
+
+class StandardScaler:
+    def __init__(self, mean: float, std: float) -> None:
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, sample: tuple[torch.Tensor, torch.Tensor]):
+        X, y = sample
+        return self.scale(X), self.scale(y)
+
+    def scale(self, t):
+        return (t - self.mean) / self.std
+
+    def inverse(self, t):
+        return t * self.std + self.mean

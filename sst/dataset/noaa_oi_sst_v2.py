@@ -52,6 +52,43 @@ class NOAA_OI_SST(Dataset):
         return X, y
 
 
+class Residual_NOAA_OI_SST(Dataset):
+    def __init__(self, noaa_ds: Dataset) -> None:
+        super().__init__()
+        self._ds = noaa_ds
+
+    def __len__(self):
+        return len(self._ds)
+
+    def __getitem__(self, idx):
+        X, y = self._ds[idx]
+
+        residual = y - X[-1]
+        return X, residual
+
+
+class Difference_NOAA_OI_SST(Dataset):
+    def __init__(self, noaa_ds: Dataset, transform: TransformFn) -> None:
+        super().__init__()
+        self._ds = noaa_ds
+        self._transform = transform
+
+    def __len__(self):
+        return len(self._ds)
+
+    def __getitem__(self, idx):
+        X, y = self._ds[idx]
+
+        diff = X[1:] - X[:-1]
+        target = y - X[-1]
+
+        transform_fn = self._transform
+        if transform_fn is not None:
+            diff, target = transform_fn((diff, target))
+
+        return diff, target
+
+
 def load_patches(patch_indices, years) -> Iterator[xr.Dataset]:
     def is_valid_patch_index(filepath: str) -> bool:
         filename, _ = os.path.splitext(os.path.basename(filepath))
