@@ -201,3 +201,33 @@ with torch.no_grad():
 
 print(f'Difference error: {(diff_total_err / len(test_dataloader)):.4f}')
 print(f'Temperature error: {(temp_total_err / len(test_dataloader)):.4f}')
+
+# +
+# Train difference error.
+model.eval()
+diff_total_err = 0.
+temp_total_err = 0.
+
+with torch.no_grad():
+    for X_diff, y_diff in train_dataloader:
+        y_diff_pred = model(X_diff.to(device)).detach().cpu()
+
+        # Calculate mse.
+        diff_total_err += float(F.mse_loss(y_diff_pred, y_diff).item())
+
+print(f'Difference error: {(diff_total_err / len(train_dataloader)):.4f}')
+
+# +
+# Validation difference error.
+model.eval()
+diff_total_err = 0.
+temp_total_err = 0.
+
+with torch.no_grad():
+    for X_diff, y_diff in val_dataloader:
+        y_diff_pred = model(X_diff.to(device)).detach().cpu()
+
+        # Calculate mse.
+        diff_total_err += float(F.mse_loss(y_diff_pred, y_diff).item())
+
+print(f'Difference error: {(diff_total_err / len(val_dataloader)):.4f}')

@@ -188,36 +188,46 @@ for epoch in range(epochs):
 # Now, let's check how does the model work.
 
 # +
-backward_sampler = ConditionalBackwardSampler(model, beta_scheduler, device)
+def generate_future_sst(backward_sampler, past_sst, original_sst, noisy_sst, times=5):
+    all_recovered_ssts = []
 
+    for _ in range(times):
+        recovered_sst = noisy_sst
+        recovered_ssts = []
+        for i in reversed(range(forward_sampler.max_time_steps)):
+            recovered_sst = backward_sampler(recovered_sst, past_sst, i)
+
+            if i % 200 == 0:
+                recovered_ssts.append(recovered_sst)
+
+        all_recovered_ssts.append(recovered_ssts)
+
+    nb_sst = len(all_recovered_ssts[0]) + 1
+    fig, axes = plt.subplots(nrows=times, ncols=nb_sst, figsize=(4 * nb_sst, 4 * times))
+    for row in range(times):
+        for t, (ax, sst) in enumerate(zip(axes[row], all_recovered_ssts[row])):
+            ax.set_title(f't={(nb_sst - t - 2)*200}')
+            cs = ax.pcolormesh(sst[0])
+            fig.colorbar(cs, ax=ax)
+            ax.axis('off')
+            
+        axes[row, -2].set_title('Predicted SST Difference')
+
+        ax = axes[row, -1]
+        cs = ax.pcolormesh(original_sst[0])
+        fig.colorbar(cs, ax=ax)
+        ax.set_title('Original SST Difference')
+        ax.axis('off')
+
+    fig.tight_layout()
+
+
+backward_sampler = ConditionalBackwardSampler(model, beta_scheduler, device)
 past_sst, original_sst = train_ds[500]
 past_sst, original_sst = torch.tensor(past_sst), torch.tensor(original_sst)
 noisy_sst, _ = forward_sampler(
     original_sst, torch.tensor(forward_sampler.max_time_steps - 1))
-recovered_ssts = []
-recovered_sst = noisy_sst
-for i in reversed(range(forward_sampler.max_time_steps)):
-    recovered_sst = backward_sampler(recovered_sst, past_sst, i)
-
-    if i % 200 == 0:
-        recovered_ssts.append(recovered_sst)
-
-nb_sst = len(recovered_ssts) + 1
-fig, axes = plt.subplots(ncols=nb_sst, figsize=(4 * nb_sst, 4))
-for t, (ax, sst) in enumerate(zip(axes, recovered_ssts)):
-    ax.set_title(f'{t=}')
-    cs = ax.pcolormesh(sst[0])
-    fig.colorbar(cs, ax=ax)
-    ax.axis('off')
-
-ax = axes[-1]
-cs = ax.pcolormesh(original_sst[0])
-fig.colorbar(cs, ax=ax)
-ax.set_title('Original SST Field')
-ax.axis('off')
-fig.tight_layout()
-
-print(F.mse_loss(sst, original_sst))
+generate_future_sst(backward_sampler, past_sst, original_sst, noisy_sst)
 # -
 
 # #### Evaluate MSE with Test Dataset
